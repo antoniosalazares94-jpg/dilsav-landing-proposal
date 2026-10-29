@@ -1,0 +1,18 @@
+---
+import Logo from './Logo.astro';
+import { nav } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-white/10 bg-night py-10 text-white/60">
+  <div class="container-page flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+    <a href="#top" aria-label="Back to top" class="text-white"><Logo class="text-xl" /></a>
+    <nav aria-label="Footer">
+      <ul class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+        {nav.map((item) => <li><a href={item.href} class="hover:text-white">{item.label}</a></li>)}
+      </ul>
+    </nav>
+    <p class="text-sm">© {year} Dilsav</p>
+  </div>
+</footer>

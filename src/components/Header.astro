@@ -1,0 +1,86 @@
+---
+import Logo from './Logo.astro';
+import { nav } from '../data/site';
+---
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300 data-open:bg-white data-scrolled:bg-white/85 data-scrolled:shadow-[0_1px_0_rgb(10_14_22/0.08)] data-scrolled:backdrop-blur-md"
+>
+  <div class="container-page flex h-20 items-center justify-between">
+    <a href="#top" aria-label="Dilsav home" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
+      <Logo />
+    </a>
+
+    <nav aria-label="Primary" class="hidden md:block">
+      <ul class="flex gap-11 text-[15px]">
+        {
+          nav.map((item) => (
+            <li>
+              <a href={item.href} class="transition-colors hover:text-accent">
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <button
+      id="menu-toggle"
+      type="button"
+      class="-mr-2 grid size-11 place-items-center rounded-md md:hidden"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="sr-only">Menu</span>
+      <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path data-icon="open" d="M4 8h16M4 16h16" stroke-linecap="round"></path>
+        <path data-icon="close" class="hidden" d="m6 6 12 12M18 6 6 18" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav id="mobile-menu" aria-label="Mobile" class="border-t border-ink/10 bg-white md:hidden" hidden>
+    <ul class="container-page flex flex-col py-4">
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} class="block py-3 font-display text-2xl tracking-[-0.02em]">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const header = document.getElementById('site-header')!;
+  const toggle = document.getElementById('menu-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+
+  const onScroll = () => header.toggleAttribute('data-scrolled', window.scrollY > 24);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  const setOpen = (open: boolean) => {
+    menu.hidden = !open;
+    header.toggleAttribute('data-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.querySelector('[data-icon="open"]')!.classList.toggle('hidden', open);
+    toggle.querySelector('[data-icon="close"]')!.classList.toggle('hidden', !open);
+  };
+
+  toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+  menu.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('a')) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !menu.hidden) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+</script>
