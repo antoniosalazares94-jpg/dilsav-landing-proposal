@@ -1,0 +1,51 @@
+---
+import { approach } from '../data/site';
+
+const { label, duration, src } = approach.video;
+---
+
+<button id="video-open" type="button" class="group flex items-center gap-6 text-left" aria-haspopup="dialog">
+  <span
+    class="grid size-16 shrink-0 place-items-center rounded-full border border-white/80 transition-colors group-hover:border-accent-glow group-hover:bg-accent group-focus-visible:outline-2 group-focus-visible:outline-offset-4 group-focus-visible:outline-accent-glow"
+  >
+    <svg class="ml-1 size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"></path></svg>
+  </span>
+  <span>
+    <span class="block max-w-[14ch] leading-snug text-white/90">{label}</span>
+    <span class="mt-2 block text-xs tracking-[0.2em] text-white/70">{duration}</span>
+  </span>
+</button>
+
+<dialog
+  id="video-dialog"
+  aria-label={label}
+  class="m-auto w-[min(64rem,92vw)] bg-transparent p-0 text-white backdrop:bg-night/85 backdrop:backdrop-blur-sm"
+>
+  <div class="relative aspect-video overflow-hidden rounded-lg border border-white/10 bg-night-soft">
+    {
+      src ? (
+        <video src={src} controls playsinline preload="none" class="size-full" />
+      ) : (
+        <p class="grid size-full place-items-center px-6 text-center text-white/60">Video coming soon.</p>
+      )
+    }
+  </div>
+  <form method="dialog" class="mt-4 text-right">
+    <button class="rounded-md px-4 py-2 text-sm text-white/80 hover:text-white">Close</button>
+  </form>
+</dialog>
+
+<script>
+  const dialog = document.getElementById('video-dialog') as HTMLDialogElement;
+  const video = dialog.querySelector('video');
+
+  document.getElementById('video-open')!.addEventListener('click', () => {
+    dialog.showModal();
+    video?.play().catch(() => {});
+  });
+  dialog.addEventListener('close', () => video?.pause());
+  // Close when clicking the backdrop.
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+</script>

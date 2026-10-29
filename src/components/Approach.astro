@@ -1,0 +1,177 @@
+---
+import { Picture } from 'astro:assets';
+import CapabilityCard from './CapabilityCard.astro';
+import Eyebrow from './Eyebrow.astro';
+import VideoButton from './VideoButton.astro';
+import approachImage from '../assets/images/approach.jpg';
+import cloudImage from '../assets/images/capabilities/cloud.jpg';
+import iotImage from '../assets/images/capabilities/iot.jpg';
+import securityImage from '../assets/images/capabilities/security.jpg';
+import softwareImage from '../assets/images/capabilities/software.jpg';
+import { approach, capabilities } from '../data/site';
+
+const cardImages = { cloud: cloudImage, security: securityImage, software: softwareImage, iot: iotImage };
+---
+
+<section id="services" class="relative isolate overflow-hidden bg-night text-white" data-capabilities>
+  <!-- Small screens: only the left edge of the scene (mountains and road, no cards) as backdrop. -->
+  <Picture
+    src={approachImage}
+    formats={['avif', 'webp']}
+    widths={[768, 1280]}
+    sizes="200vw"
+    alt=""
+    loading="lazy"
+    class="absolute inset-0 -z-10 h-full w-full object-cover object-left lg:hidden"
+  />
+  <div class="absolute inset-0 -z-10 bg-night/70 lg:hidden" aria-hidden="true"></div>
+
+  <div class="container-page relative pt-20 pb-12 lg:pt-24">
+    <!-- Large screens: the full scene, with each card's label laid over the card painted into it. -->
+    <figure class="scene absolute top-0 left-[12%] -z-10 hidden w-full lg:block">
+      <Picture
+        src={approachImage}
+        formats={['avif', 'webp']}
+        widths={[1024, 1672]}
+        sizes="(min-width: 1280px) 1280px, 100vw"
+        alt="Four glass panels standing in a mountain landscape, showing cloud, security, software and IoT."
+        loading="lazy"
+        class="block h-auto w-full"
+      />
+      {
+        capabilities.map((c, i) => (
+          <div
+            data-card={i}
+            class="group absolute @container"
+            style={`left:${c.area.left}%;top:${c.area.top}%;width:${c.area.width}%;height:${c.area.height}%`}
+          >
+            <!-- Sized in container units so labels shrink with the scene. -->
+            <div class="absolute inset-x-[10%] bottom-[7%] text-white/70 transition-colors duration-500 [text-shadow:0_1px_10px_rgb(0_0_0/0.9)] group-data-active:text-white">
+              <h3 class="text-[7cqi] font-semibold tracking-[0.2em] uppercase">{c.title}</h3>
+              <p class="mt-[0.5em] text-[5.6cqi] leading-[1.7] tracking-[0.24em] uppercase opacity-85">{c.tagline}</p>
+            </div>
+            <span
+              class="absolute inset-x-[6%] -bottom-3 h-px origin-left scale-x-0 bg-accent-glow shadow-[0_0_12px_2px_rgb(106_162_255/0.7)] transition-transform duration-500 group-data-active:scale-x-100"
+              aria-hidden="true"
+            />
+          </div>
+        ))
+      }
+    </figure>
+
+    <div class="grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
+      <div>
+        <Eyebrow tone="dark">{approach.eyebrow}</Eyebrow>
+        <h2
+          class="mt-8 max-w-[18ch] font-display text-[clamp(2.25rem,4.4vw,3.5rem)] leading-[1.02] font-medium tracking-[-0.035em]"
+        >
+          {approach.headline}
+        </h2>
+        <p class="mt-7 max-w-[42ch] leading-relaxed text-white/80">{approach.body}</p>
+        <div class="mt-12">
+          <VideoButton />
+        </div>
+      </div>
+
+      <div
+        data-track
+        class="-mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pt-3 pb-6 [scrollbar-width:none] md:-mx-10 md:px-10 lg:hidden"
+      >
+        {capabilities.map((c, i) => <CapabilityCard index={i} title={c.title} tagline={c.tagline} image={cardImages[c.id]} />)}
+      </div>
+    </div>
+
+    <ol class="mt-14 grid grid-cols-4 gap-4 lg:mt-20 lg:gap-6" aria-label="Capabilities">
+      {
+        capabilities.map((c, i) => (
+          <li>
+            <button
+              type="button"
+              data-tab={i}
+              class="group w-full pt-5 text-left text-sm text-white/55 transition-colors hover:text-white data-active:text-white"
+            >
+              <span class="relative block h-px bg-white/15" aria-hidden="true">
+                <span class="tab-progress absolute inset-0 origin-left scale-x-0 bg-accent-glow" />
+              </span>
+              <span class="mt-5 flex gap-2 sm:gap-6">
+                <span class="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                <span class="hidden sm:inline">{c.title}</span>
+              </span>
+            </button>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  /* Blend the scene's edges into the section background. */
+  .scene {
+    mask-image:
+      linear-gradient(to right, transparent 4%, #000 30%, #000 90%, transparent),
+      linear-gradient(to bottom, transparent, #000 8%, #000 80%, transparent);
+    mask-composite: intersect;
+  }
+
+  /* The active tab's bar fills over --cycle; when it finishes the script advances. */
+  [data-capabilities] {
+    --cycle: 6s;
+  }
+  [data-tab][data-active] .tab-progress {
+    animation: tab-fill var(--cycle) linear forwards;
+  }
+  [data-capabilities]:is(:hover, :focus-within, [data-paused]) [data-tab][data-active] .tab-progress {
+    animation-play-state: paused;
+  }
+  @keyframes tab-fill {
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-tab][data-active] .tab-progress {
+      animation: none;
+      transform: scaleX(1);
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-capabilities]')!;
+  const track = root.querySelector<HTMLElement>('[data-track]')!;
+  const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+  // Each capability has two cards: one in the mobile row, one over the desktop scene.
+  const cards = [...root.querySelectorAll<HTMLElement>('[data-card]')];
+  const trackCards = [...track.querySelectorAll<HTMLElement>('[data-card]')];
+
+  const setActive = (index: number) => {
+    tabs.forEach((tab, i) => {
+      tab.toggleAttribute('data-active', i === index);
+      tab.setAttribute('aria-current', String(i === index));
+    });
+    cards.forEach((card) => card.toggleAttribute('data-active', Number(card.dataset.card) === index));
+  };
+
+  // Scroll only the card row (on small screens it scrolls sideways), never the page.
+  const revealCard = (index: number) => {
+    const card = trackCards[index];
+    if (track.scrollWidth <= track.clientWidth) return;
+    track.scrollTo({ left: card.offsetLeft - (track.clientWidth - card.clientWidth) / 2, behavior: 'smooth' });
+  };
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => {
+      setActive(i);
+      revealCard(i);
+    });
+    tab.addEventListener('animationend', () => setActive((i + 1) % tabs.length));
+  });
+
+  // Don't advance while the section is off-screen.
+  new IntersectionObserver(([entry]) => root.toggleAttribute('data-paused', !entry.isIntersecting), {
+    threshold: 0.25,
+  }).observe(root);
+
+  setActive(0);
+</script>

@@ -1,0 +1,91 @@
+---
+import Eyebrow from './Eyebrow.astro';
+import { contact } from '../data/site';
+
+// Where submissions go is still undecided (inbox vs CRM). Set PUBLIC_CONTACT_ENDPOINT
+// to any URL that accepts a JSON POST (e.g. a Lambda Function URL that sends via SES).
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? '';
+
+const field =
+  'mt-2 w-full rounded-md border border-white/15 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 transition-colors focus:border-accent-glow focus:outline-none';
+---
+
+<section id="contact" class="bg-night py-24 text-white lg:py-32">
+  <div class="container-page grid gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-20">
+    <div>
+      <Eyebrow tone="dark">{contact.eyebrow}</Eyebrow>
+      <h2 class="mt-8 font-display text-[clamp(2.25rem,4.4vw,3.5rem)] leading-[1.02] font-medium tracking-[-0.035em]">
+        {contact.headline}
+      </h2>
+      <p class="mt-7 max-w-[40ch] leading-relaxed text-white/75">{contact.body}</p>
+    </div>
+
+    <form id="contact-form" data-endpoint={endpoint} class="grid gap-6 sm:grid-cols-2" novalidate>
+      <label class="text-sm text-white/80">
+        Name
+        <input name="name" required autocomplete="name" class={field} />
+      </label>
+      <label class="text-sm text-white/80">
+        Work email
+        <input name="email" type="email" required autocomplete="email" class={field} />
+      </label>
+      <label class="text-sm text-white/80 sm:col-span-2">
+        Company
+        <input name="company" autocomplete="organization" class={field} />
+      </label>
+      <label class="text-sm text-white/80 sm:col-span-2">
+        How can we help?
+        <textarea name="message" required rows="5" class={field}></textarea>
+      </label>
+      <!-- Honeypot: hidden from people, bots tend to fill it in. -->
+      <input name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true" />
+
+      <div class="flex flex-wrap items-center gap-6 sm:col-span-2">
+        <button
+          type="submit"
+          class="rounded-md bg-white px-7 py-4 text-[15px] font-medium text-ink transition-colors hover:bg-accent hover:text-white disabled:opacity-60"
+        >
+          Send message
+        </button>
+        <p data-status role="status" class="text-sm text-white/70"></p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const status = form.querySelector<HTMLElement>('[data-status]')!;
+  const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const data = Object.fromEntries(new FormData(form));
+    if (data.website) return;
+
+    const endpoint = form.dataset.endpoint;
+    if (!endpoint) {
+      status.textContent = 'The contact form isn’t connected yet.';
+      return;
+    }
+
+    submit.disabled = true;
+    status.textContent = 'Sending…';
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      status.textContent = 'Thanks, we’ll be in touch shortly.';
+    } catch {
+      status.textContent = 'Something went wrong. Please try again.';
+    } finally {
+      submit.disabled = false;
+    }
+  });
+</script>

@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter Tight Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink: #0a0e16;
+  --color-slate: #5d6779;
+  --color-mist: #eef1f5;
+  --color-night: #070a10;
+  --color-night-soft: #0e131c;
+  --color-accent: #2f6fe4;
+  --color-accent-glow: #6aa2ff;
+
+  --tracking-eyebrow: 0.32em;
+  --tracking-display: -0.045em;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+}
+
+@utility container-page {
+  @apply mx-auto w-full max-w-7xl px-6 md:px-10 lg:px-16;
+}

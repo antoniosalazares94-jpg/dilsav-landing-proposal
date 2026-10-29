@@ -1,0 +1,52 @@
+---
+import { Picture } from 'astro:assets';
+import ButtonLink from './ButtonLink.astro';
+import Eyebrow from './Eyebrow.astro';
+import heroImage from '../assets/images/hero.jpg';
+import { hero } from '../data/site';
+---
+
+<section id="top" class="relative isolate flex min-h-[44rem] flex-col overflow-hidden bg-mist lg:min-h-[100svh]">
+  <Picture
+    src={heroImage}
+    formats={['avif', 'webp']}
+    widths={[768, 1280, 1920, 2400]}
+    sizes="100vw"
+    alt=""
+    loading="eager"
+    fetchpriority="high"
+    class="absolute inset-0 -z-10 h-full w-full object-cover object-[70%_center]"
+  />
+  <!-- Keeps the headline legible whatever the final photo looks like. -->
+  <div
+    class="absolute inset-0 -z-10 bg-linear-to-b from-white/90 via-white/75 via-55% to-transparent lg:bg-linear-to-r lg:from-white/80 lg:via-white/30 lg:via-50%"
+    aria-hidden="true"
+  >
+  </div>
+  <!-- Fades the top of the sky so the header and the pillars list stay readable. -->
+  <div
+    class="absolute inset-x-0 top-0 -z-10 hidden h-[45%] bg-linear-to-b from-white/85 via-white/60 to-transparent lg:block"
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-page relative flex-1 pt-32 pb-24 md:pt-36">
+    <Eyebrow>{hero.eyebrow}</Eyebrow>
+
+    <h1
+      class="mt-8 font-display text-[clamp(3rem,7.6vw,6.75rem)] leading-[0.92] font-semibold tracking-display text-ink"
+    >
+      {hero.headline.map((line) => <span class="block">{line}</span>)}
+    </h1>
+
+    <p class="mt-6 text-[clamp(1.25rem,2.2vw,1.875rem)] tracking-[-0.01em] text-slate">{hero.subhead}</p>
+
+    <ButtonLink href={hero.cta.href} class="mt-10">{hero.cta.label}</ButtonLink>
+
+    <ul
+      class="absolute top-36 right-6 hidden border-l border-ink/25 py-2 pl-8 text-xs leading-[2] font-medium tracking-eyebrow text-ink/80 uppercase md:right-10 lg:right-16 lg:block"
+    >
+      {hero.pillars.map((pillar) => <li>{pillar}</li>)}
+    </ul>
+  </div>
+</section>

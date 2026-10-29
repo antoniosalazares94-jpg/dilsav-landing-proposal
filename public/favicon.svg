@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- PLACEHOLDER mark until the real logo SVG arrives -->
+  <rect width="64" height="64" rx="12" fill="#070a10" />
+  <path d="M18 16h14c10 0 16 6.5 16 16s-6 16-16 16H18zm8 7v18h6c5.2 0 8-3.3 8-9s-2.8-9-8-9z" fill="#fff" />
+</svg>
